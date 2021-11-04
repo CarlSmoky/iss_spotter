@@ -1,3 +1,6 @@
+// iss.js
+const request = require('request');
+
 /**
  * Makes a single API request to retrieve the user's IP address.
  * Input:
@@ -6,27 +9,16 @@
  *   - An error, if any (nullable)
  *   - The IP address as a string (null if error). Example: "162.245.144.188"
  */
+const fetchMyIP = function(callback) {
+  request('https://api.ipify.org?format=json', (error, response, body) => {
+    if (error) return callback(error, null);
 
-const request = require('request');
-const fetchMyIP = function (callback) {
-  // use request to fetch IP address from JSON API
-  const url = `https://api.ipify.org?format=json`;
-  request(url, (error, response, body) => {
-    if (error) {
-      callback(error, null);
-      return;
-    }
-
-    // if non-200 status, assume server error
     if (response.statusCode !== 200) {
-      const msg = `Status Code ${response.statusCode} when fetching IP. Response: ${body}`;
-      callback(Error(msg), null);
+      callback(Error(`Status Code ${response.statusCode} when fetching IP: ${body}`), null);
       return;
     }
 
-    const data = JSON.parse(body);
-
-    const ip = data.ip;
+    const ip = JSON.parse(body).ip;
     callback(null, ip);
   });
 };
